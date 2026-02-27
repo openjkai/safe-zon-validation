@@ -13,9 +13,9 @@ export interface SegmentedControlProps<T> {
 }
 
 const OPTION_BASE =
-  'flex-1 px-3 py-2 text-sm font-medium rounded-md border-none cursor-pointer transition-all'
-const OPTION_ACTIVE = 'text-overlay-text bg-slate-400/20'
-const OPTION_INACTIVE = 'text-overlay-muted bg-transparent hover:text-overlay-text'
+  'flex-1 px-4 py-2.5 text-sm font-medium rounded-md border-none cursor-pointer transition-all'
+const OPTION_ACTIVE = 'text-primary-foreground bg-primary'
+const OPTION_INACTIVE = 'text-muted-foreground bg-transparent hover:text-foreground hover:bg-muted'
 
 export function SegmentedControl<T extends string | number | boolean>({
   options,
@@ -26,15 +26,11 @@ export function SegmentedControl<T extends string | number | boolean>({
   hint,
 }: SegmentedControlProps<T>) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-xs text-overlay-muted" id={labelId}>
+    <div className="flex flex-col gap-2">
+      <span className="text-sm text-muted-foreground font-medium" id={labelId}>
         {label}
       </span>
-      <div
-        className="flex rounded-lg bg-slate-400/10 p-0.5"
-        role="group"
-        aria-labelledby={labelId}
-      >
+      <div className="flex rounded-lg bg-muted p-1" role="group" aria-labelledby={labelId}>
         {options.map((opt) => (
           <button
             key={String(opt.value)}
@@ -48,7 +44,7 @@ export function SegmentedControl<T extends string | number | boolean>({
           </button>
         ))}
       </div>
-      {hint && <span className="text-[11px] text-overlay-muted leading-snug">{hint}</span>}
+      {hint && <span className="text-sm text-muted-foreground leading-snug">{hint}</span>}
     </div>
   )
 }
