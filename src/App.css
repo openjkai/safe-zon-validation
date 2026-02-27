@@ -39,6 +39,7 @@
   top: 20px;
   left: 20px;
   max-width: 320px;
+  max-height: calc(100vh - 40px);
   padding: 20px;
   background: var(--overlay-bg);
   backdrop-filter: blur(12px);
@@ -49,6 +50,7 @@
   font-size: 14px;
   color: var(--overlay-text);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  overflow-y: auto;
 }
 
 .demo-overlay h1 {
@@ -60,27 +62,65 @@
 
 .guide-section {
   margin: 12px 0 16px;
-  padding: 12px 14px;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
   border-radius: 8px;
+  overflow: hidden;
 }
 
-.guide-title {
-  margin: 0 0 8px;
+.guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  font-family: inherit;
   font-size: 12px;
   font-weight: 600;
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.guide-header:hover {
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.guide-header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.guide-chevron {
+  font-size: 10px;
+  opacity: 0.8;
+  transition: transform 0.2s;
+}
+
+.guide-title {
+  margin: 0;
 }
 
 .guide-steps {
   margin: 0;
-  padding-left: 18px;
+  padding: 0 14px 12px 18px;
   font-size: 12px;
   line-height: 1.6;
   color: var(--overlay-text);
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 0.25s ease, padding 0.25s ease, opacity 0.2s;
+}
+
+.guide-steps:not(.guide-steps--expanded) {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
 }
 
 .guide-steps li {
@@ -138,14 +178,23 @@
 
 .invalid-banner {
   margin-bottom: 12px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   font-size: 13px;
   font-weight: 600;
   color: #fef2f2;
-  background: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.45);
   border: 1px solid rgba(248, 113, 113, 0.5);
   border-radius: 8px;
   animation: invalid-pulse 1.5s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.invalid-banner::before {
+  content: '⚠';
+  font-size: 16px;
+  line-height: 1;
 }
 
 @keyframes invalid-pulse {
@@ -164,11 +213,22 @@
   }
 }
 
+.data-card {
+  padding: 10px 14px;
+  background: rgba(148, 163, 184, 0.06);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
 .demo-overlay .data-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+}
+
+.demo-overlay .data-row:last-child {
+  margin-bottom: 0;
 }
 
 .demo-overlay .data-label {
@@ -276,12 +336,23 @@
   cursor: pointer;
   transition:
     background 0.15s,
-    border-color 0.15s;
+    border-color 0.15s,
+    transform 0.1s;
 }
 
 .demo-overlay button:hover {
   background: rgba(148, 163, 184, 0.25);
   border-color: rgba(148, 163, 184, 0.3);
+}
+
+.demo-overlay button:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-overlay button:active {
+    transform: none;
+  }
 }
 
 .demo-overlay .button-row {
@@ -325,6 +396,7 @@
   border-top: 1px solid var(--overlay-border);
   font-size: 11px;
   color: var(--overlay-muted);
+  line-height: 1.5;
 }
 
 .demo-overlay .shortcuts kbd {

@@ -15,6 +15,7 @@ function App() {
   const [clampMode, setClampMode] = useState(false)
   const [showBounds, setShowBounds] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
+  const [guideExpanded, setGuideExpanded] = useState(true)
   const toolRef = useRef<ToolObjectRef>(null)
 
   const handleRotate = useCallback(() => {
@@ -86,8 +87,19 @@ function App() {
         <h1>Safe Zone Validation</h1>
 
         <div className="guide-section" role="status">
-          <h2 className="guide-title">What to do first</h2>
-          <ol className="guide-steps">
+          <button
+            type="button"
+            className="guide-header"
+            onClick={() => setGuideExpanded((e) => !e)}
+            aria-expanded={guideExpanded}
+            aria-controls="guide-steps"
+          >
+            <span className="guide-title">What to do first</span>
+            <span className="guide-chevron" aria-hidden>
+              {guideExpanded ? '▼' : '▶'}
+            </span>
+          </button>
+          <ol id="guide-steps" className={`guide-steps ${guideExpanded ? 'guide-steps--expanded' : ''}`}>
             <li>
               <strong>Drag</strong> the green tool onto the workspace — keep it inside the green rectangle
             </li>
@@ -116,9 +128,10 @@ function App() {
         </div>
         {!isValid && (
           <div className="invalid-banner" role="alert">
-            Outside safe zone
+            Move the tool inside the green zone
           </div>
         )}
+        <div className="data-card">
         <div className="data-row">
           <span className="data-label">Position</span>
           <span className="data-value">
@@ -130,6 +143,7 @@ function App() {
           <span className={`status-pill ${isValid ? 'valid' : 'invalid'}`} role="status">
             {isValid ? 'Valid' : 'Invalid'}
           </span>
+        </div>
         </div>
         <div className="controls">
           <div className="control-group">
