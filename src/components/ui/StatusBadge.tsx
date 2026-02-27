@@ -5,7 +5,9 @@ export function StatusBadge({ valid }: { valid: boolean }) {
   return (
     <span
       className={`${BASE_CLASS} ${
-        valid ? 'bg-status-valid-bg text-status-valid-text' : 'bg-status-invalid-bg text-status-invalid-text'
+        valid
+          ? 'bg-status-valid-bg text-status-valid-text'
+          : 'bg-status-invalid-bg text-status-invalid-text'
       }`}
       role="status"
     >

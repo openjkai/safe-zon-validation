@@ -4,13 +4,7 @@ import { Scene } from './components/Scene'
 import type { ToolObjectRef } from './components/ToolObject'
 import { Kbd, Button, SegmentedControl, StatusBadge, Compass } from './components/ui'
 import * as THREE from 'three'
-import {
-  INITIAL_POSITION,
-  NUDGE_STEP,
-  QUARTER_TURN,
-  TAU,
-  SAFE_ZONE_MARGIN,
-} from './constants'
+import { INITIAL_POSITION, NUDGE_STEP, QUARTER_TURN, TAU, SAFE_ZONE_MARGIN } from './constants'
 import { CAMERA_POSITION, CAMERA_FOV } from './constants/scene'
 import { isTypingTarget } from './utils/keyboard'
 
@@ -102,7 +96,10 @@ function App() {
       >
         <h1 className="m-0 mb-3 text-2xl font-semibold tracking-tight">Safe Zone Validation</h1>
 
-        <div className="mt-7 mb-7 rounded-lg overflow-hidden border border-border bg-muted/50" role="status">
+        <div
+          className="mt-7 mb-7 rounded-lg overflow-hidden border border-border bg-muted/50"
+          role="status"
+        >
           <button
             type="button"
             className="flex items-center justify-between w-full px-5 py-4 text-sm font-semibold uppercase tracking-wider text-primary bg-transparent border-none cursor-pointer transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 rounded-t-lg"
@@ -122,16 +119,21 @@ function App() {
             }`}
           >
             <li className="mb-2 last:mb-0">
-              <strong>Drag</strong> the green tool onto the workspace — keep it inside the green rectangle
+              <strong>Drag</strong> the green tool onto the workspace — keep it inside the green
+              rectangle
             </li>
             <li className="mb-2 last:mb-0">
               <strong>Orbit</strong> the camera (click + drag) to inspect from different angles
             </li>
             <li className="mb-2 last:mb-0">
-              Press <Kbd>R</Kbd> to <strong>rotate</strong> the tool 90° and see how its footprint changes
+              Press <Kbd>R</Kbd> to <strong>rotate</strong> the tool 90° and see how its footprint
+              changes
             </li>
             <li className="mb-2 last:mb-0">
-              Use <Kbd>↑</Kbd><Kbd>↓</Kbd><Kbd>←</Kbd><Kbd>→</Kbd> to <strong>nudge</strong> the tool
+              Use <Kbd>↑</Kbd>
+              <Kbd>↓</Kbd>
+              <Kbd>←</Kbd>
+              <Kbd>→</Kbd> to <strong>nudge</strong> the tool
             </li>
           </ol>
         </div>
@@ -141,10 +143,12 @@ function App() {
         </p>
         <div className="flex flex-col gap-2 mb-5 text-sm text-muted-foreground">
           <span className="flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" /> Green rectangle = {SAFE_ZONE_MARGIN}mm safe zone
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" /> Green rectangle ={' '}
+            {SAFE_ZONE_MARGIN}mm safe zone
           </span>
           <span className="flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0" /> Red tool = outside safe zone
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0" /> Red tool = outside
+            safe zone
           </span>
         </div>
         {!isValid && (
@@ -152,7 +156,9 @@ function App() {
             className="mb-5 px-4 py-3 text-sm font-semibold text-destructive-foreground bg-destructive/40 border border-destructive/50 rounded-lg flex items-center gap-3 animate-pulse motion-reduce:animate-none"
             role="alert"
           >
-            <span aria-hidden className="text-base">⚠</span>
+            <span aria-hidden className="text-base">
+              ⚠
+            </span>
             Move the tool inside the green zone
           </div>
         )}
@@ -209,7 +215,10 @@ function App() {
             </span>
             <span className="text-muted-foreground">·</span>
             <span className="flex items-center gap-1.5">
-              <Kbd>↑</Kbd><Kbd>↓</Kbd><Kbd>←</Kbd><Kbd>→</Kbd>
+              <Kbd>↑</Kbd>
+              <Kbd>↓</Kbd>
+              <Kbd>←</Kbd>
+              <Kbd>→</Kbd>
               <span className="text-muted-foreground">nudge tool</span>
             </span>
           </div>

@@ -3,8 +3,7 @@ const BASE_CLASS =
 
 const PRIMARY_CLASS =
   'bg-primary text-primary-foreground border border-transparent hover:opacity-90'
-const SECONDARY_CLASS =
-  'bg-secondary text-secondary-foreground border border-border hover:bg-muted'
+const SECONDARY_CLASS = 'bg-secondary text-secondary-foreground border border-border hover:bg-muted'
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary'
@@ -12,5 +11,11 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 export function Button({ variant = 'primary', className, ...props }: ButtonProps) {
   const variantClass = variant === 'primary' ? PRIMARY_CLASS : SECONDARY_CLASS
-  return <button type="button" className={`${BASE_CLASS} ${variantClass} ${className ?? ''}`.trim()} {...props} />
+  return (
+    <button
+      type="button"
+      className={`${BASE_CLASS} ${variantClass} ${className ?? ''}`.trim()}
+      {...props}
+    />
+  )
 }

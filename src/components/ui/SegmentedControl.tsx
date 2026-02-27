@@ -30,11 +30,7 @@ export function SegmentedControl<T extends string | number | boolean>({
       <span className="text-sm text-muted-foreground font-medium" id={labelId}>
         {label}
       </span>
-      <div
-        className="flex rounded-lg bg-muted p-1"
-        role="group"
-        aria-labelledby={labelId}
-      >
+      <div className="flex rounded-lg bg-muted p-1" role="group" aria-labelledby={labelId}>
         {options.map((opt) => (
           <button
             key={String(opt.value)}

@@ -61,10 +61,7 @@ export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
         shadow-camera-bottom={-SHADOW_CAMERA_BOUNDS}
       />
       <directionalLight position={[...FILL_LIGHT_POSITION]} intensity={FILL_LIGHT_INTENSITY} />
-      <directionalLight
-        position={[...BOTTOM_LIGHT_POSITION]}
-        intensity={BOTTOM_LIGHT_INTENSITY}
-      />
+      <directionalLight position={[...BOTTOM_LIGHT_POSITION]} intensity={BOTTOM_LIGHT_INTENSITY} />
       <OrbitControls
         enabled={!isDragging}
         target={[...ORBIT_TARGET]}
