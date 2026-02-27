@@ -1,7 +1,15 @@
-import { useRef, useState, useCallback, useLayoutEffect } from 'react'
+import {
+  useRef,
+  useState,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useImperativeHandle,
+  forwardRef,
+} from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
-import { isWithinSafeZone } from '../validation/validation'
+import { isWithinSafeZone, clampToSafeZone } from '../validation/validation'
 import { useDragOnPlane } from '../hooks/useDragOnPlane'
 
 const TOOL_SIZE = { w: 120, d: 60, h: 40 }
@@ -9,13 +17,29 @@ const FIXED_Y = TOOL_SIZE.h / 2
 
 const INITIAL_POSITION: [number, number, number] = [600, FIXED_Y, 300]
 
+export interface ToolObjectRef {
+  nudge: (dx: number, dz: number) => void
+  getPosition: () => THREE.Vector3
+}
+
 export interface ToolObjectProps {
   rotationY: number
+  clampMode?: boolean
+  showBounds?: boolean
   onPositionChange?: (pos: THREE.Vector3) => void
   onValidationChange?: (valid: boolean) => void
 }
 
-export function ToolObject({ rotationY, onPositionChange, onValidationChange }: ToolObjectProps) {
+export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function ToolObject(
+  {
+    rotationY,
+    clampMode = false,
+    showBounds = false,
+    onPositionChange,
+    onValidationChange,
+  },
+  ref
+) {
   const meshRef = useRef<THREE.Mesh>(null)
   const [isValid, setIsValid] = useState(true)
   const lastValidRef = useRef(true)
@@ -33,11 +57,47 @@ export function ToolObject({ rotationY, onPositionChange, onValidationChange }: 
     [rotationY, onPositionChange, onValidationChange]
   )
 
+  const clampPosition = useMemo(
+    () =>
+      clampMode
+        ? (pos: THREE.Vector3) => {
+            const c = clampToSafeZone(
+              { x: pos.x, y: pos.y, z: pos.z },
+              TOOL_SIZE,
+              rotationY
+            )
+            return new THREE.Vector3(c.x, c.y, c.z)
+          }
+        : undefined,
+    [clampMode, rotationY]
+  )
+
   const { handlePointerDown } = useDragOnPlane({
     meshRef,
     fixedY: FIXED_Y,
     onPositionChange: handlePositionChange,
+    clampPosition,
   })
+
+  useImperativeHandle(ref, () => ({
+    nudge(dx: number, dz: number) {
+      if (!meshRef.current) return
+      meshRef.current.position.x += dx
+      meshRef.current.position.z += dz
+      if (clampPosition) {
+        const c = clampToSafeZone(
+          { x: meshRef.current.position.x, y: meshRef.current.position.y, z: meshRef.current.position.z },
+          TOOL_SIZE,
+          rotationY
+        )
+        meshRef.current.position.set(c.x, c.y, c.z)
+      }
+      handlePositionChange(meshRef.current.position.clone())
+    },
+    getPosition() {
+      return meshRef.current?.position.clone() ?? new THREE.Vector3(...INITIAL_POSITION)
+    },
+  }), [handlePositionChange, clampPosition, rotationY])
 
   useLayoutEffect(() => {
     if (meshRef.current) {
@@ -65,13 +125,46 @@ export function ToolObject({ rotationY, onPositionChange, onValidationChange }: 
   const color = isValid ? '#4ade80' : '#ef4444'
 
   return (
-    <mesh
-      ref={meshRef}
-      rotation={[0, rotationY, 0]}
-      onPointerDown={handlePointerDown}
-    >
-      <boxGeometry args={[TOOL_SIZE.w, TOOL_SIZE.h, TOOL_SIZE.d]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
+    <group>
+      <mesh
+        ref={meshRef}
+        rotation={[0, rotationY, 0]}
+        onPointerDown={handlePointerDown}
+      >
+        <boxGeometry args={[TOOL_SIZE.w, TOOL_SIZE.h, TOOL_SIZE.d]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+      {showBounds && <BoundsHelper meshRef={meshRef} />}
+    </group>
   )
+})
+
+function BoundsHelper({
+  meshRef,
+}: {
+  meshRef: React.RefObject<THREE.Mesh | null>
+}) {
+  const helperRef = useRef<THREE.BoxHelper | null>(null)
+  const [ready, setReady] = useState(false)
+
+  useLayoutEffect(() => {
+    if (!meshRef.current) return
+    const h = new THREE.BoxHelper(meshRef.current, 0x666666)
+    helperRef.current = h
+    setReady(true)
+    return () => {
+      h.dispose()
+      helperRef.current = null
+      setReady(false)
+    }
+  }, [meshRef])
+
+  useFrame(() => {
+    if (helperRef.current && meshRef.current) {
+      helperRef.current.setFromObject(meshRef.current)
+    }
+  })
+
+  if (!ready || !meshRef.current) return null
+  return <primitive object={helperRef.current!} />
 }

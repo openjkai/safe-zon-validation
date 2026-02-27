@@ -5,23 +5,29 @@ import { useThree } from '@react-three/fiber'
 const DRAG_PLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
 const INTERSECTION = new THREE.Vector3()
 
+export type ClampFn = (pos: THREE.Vector3) => THREE.Vector3
+
 export interface UseDragOnPlaneOptions {
   meshRef: React.RefObject<THREE.Mesh | null>
   fixedY?: number
   onPositionChange?: (pos: THREE.Vector3) => void
+  clampPosition?: ClampFn
 }
 
 export function useDragOnPlane({
   meshRef,
   fixedY = 20,
   onPositionChange,
+  clampPosition,
 }: UseDragOnPlaneOptions) {
   const { camera, gl } = useThree()
   const raycaster = useRef(new THREE.Raycaster())
   const pointer = useRef(new THREE.Vector2())
   const isDragging = useRef(false)
   const onPositionChangeRef = useRef(onPositionChange)
+  const clampPositionRef = useRef(clampPosition)
   onPositionChangeRef.current = onPositionChange
+  clampPositionRef.current = clampPosition
 
   const getIntersection = useCallback(
     (clientX: number, clientY: number): THREE.Vector3 | null => {
@@ -50,8 +56,11 @@ export function useDragOnPlane({
     const el = gl.domElement
     const onMove = (e: PointerEvent) => {
       if (!isDragging.current || !meshRef.current) return
-      const pt = getIntersection(e.clientX, e.clientY)
+      let pt = getIntersection(e.clientX, e.clientY)
       if (pt) {
+        if (clampPositionRef.current) {
+          pt = clampPositionRef.current(pt)
+        }
         meshRef.current.position.x = pt.x
         meshRef.current.position.z = pt.z
         meshRef.current.position.y = fixedY
@@ -61,8 +70,13 @@ export function useDragOnPlane({
       if (isDragging.current) {
         isDragging.current = false
         el.releasePointerCapture(e.pointerId)
-        if (meshRef.current && onPositionChangeRef.current) {
-          onPositionChangeRef.current(meshRef.current.position.clone())
+        if (meshRef.current) {
+          let pos = meshRef.current.position.clone()
+          if (clampPositionRef.current) {
+            pos = clampPositionRef.current(pos)
+            meshRef.current.position.copy(pos)
+          }
+          onPositionChangeRef.current?.(pos)
         }
       }
     }
@@ -72,7 +86,7 @@ export function useDragOnPlane({
       el.removeEventListener('pointermove', onMove)
       el.removeEventListener('pointerup', onUp)
     }
-  }, [gl, meshRef, fixedY, getIntersection])
+  }, [gl, meshRef, fixedY, getIntersection, clampPosition])
 
   return { handlePointerDown }
 }

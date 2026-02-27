@@ -61,3 +61,20 @@ export function isWithinSafeZone(
     maxZ <= bounds.maxZ
   )
 }
+
+/**
+ * Clamps a position so the object's footprint stays within the safe zone.
+ */
+export function clampToSafeZone(
+  position: { x: number; y: number; z: number },
+  size: FootprintSize,
+  rotationY: number
+): { x: number; y: number; z: number } {
+  const bounds = getSafeZoneBounds()
+  const { halfW, halfD } = getFootprintForRotation(rotationY, size)
+  return {
+    x: Math.max(bounds.minX + halfW, Math.min(bounds.maxX - halfW, position.x)),
+    y: position.y,
+    z: Math.max(bounds.minZ + halfD, Math.min(bounds.maxZ - halfD, position.z)),
+  }
+}
