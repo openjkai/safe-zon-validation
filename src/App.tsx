@@ -23,6 +23,7 @@ function App() {
   const [showBounds, setShowBounds] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [guideExpanded, setGuideExpanded] = useState(true)
+  const [cameraAzimuth, setCameraAzimuth] = useState(0)
   const toolRef = useRef<ToolObjectRef>(null)
 
   const handleRotate = useCallback(() => {
@@ -83,6 +84,7 @@ function App() {
             clampMode={clampMode}
             showBounds={showBounds || !isValid}
             isDragging={isDragging}
+            onCameraAzimuthChange={setCameraAzimuth}
             onPositionChange={handlePositionChange}
             onValidationChange={handleValidationChange}
             onDragChange={setIsDragging}
@@ -97,7 +99,7 @@ function App() {
         <h1 className="m-0 mb-3 text-2xl font-semibold tracking-tight">Safe Zone Validation</h1>
 
         <div
-          className="mt-7 mb-7 rounded-lg overflow-hidden border border-border bg-muted/50"
+          className="mt-7 mb-7 rounded-lg overflow-hidden border border-border bg-muted/50 px-5"
           role="status"
         >
           <button
@@ -224,7 +226,7 @@ function App() {
           </div>
         </div>
       </aside>
-      <Compass />
+      <Compass azimuth={cameraAzimuth} />
     </div>
   )
 }
