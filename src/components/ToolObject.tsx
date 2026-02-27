@@ -110,7 +110,6 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
         handlePositionChange(meshRef.current.position.clone())
       },
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- clampPosition captures rotationY; rotation from prop only
     [handlePositionChange, clampPosition]
   )
 
