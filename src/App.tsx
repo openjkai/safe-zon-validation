@@ -13,7 +13,7 @@ function App() {
   const [position, setPosition] = useState<THREE.Vector3>(INITIAL_POS.clone())
   const [isValid, setIsValid] = useState(true)
   const [clampMode, setClampMode] = useState(false)
-  const [showBounds, setShowBounds] = useState(false)
+  const [showBounds, setShowBounds] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const toolRef = useRef<ToolObjectRef>(null)
 
@@ -64,7 +64,7 @@ function App() {
             ref={toolRef}
             rotationY={rotationY}
             clampMode={clampMode}
-            showBounds={showBounds}
+            showBounds={showBounds || !isValid}
             onPositionChange={handlePositionChange}
             onValidationChange={handleValidationChange}
             onDragChange={setIsDragging}
@@ -78,8 +78,21 @@ function App() {
       >
         <h1>Safe Zone Validation</h1>
         <p className="subtitle">
-          Drag the tool within the green boundary. Red = invalid placement.
+          Drag the tool within the safe zone. Rotate to see footprint update.
         </p>
+        <div className="legend">
+          <span className="legend-item">
+            <span className="legend-dot legend-dot--safe" /> Green inset = 10mm safe zone
+          </span>
+          <span className="legend-item">
+            <span className="legend-dot legend-dot--invalid" /> Red tool = invalid placement
+          </span>
+        </div>
+        {!isValid && (
+          <div className="invalid-banner" role="alert">
+            Outside safe zone
+          </div>
+        )}
         <div className="data-row">
           <span className="data-label">Position</span>
           <span className="data-value">
@@ -93,18 +106,37 @@ function App() {
           </span>
         </div>
         <div className="controls">
+          <div className="control-group">
+            <span className="control-label" id="validation-mode-label">
+              Validation mode
+            </span>
+            <div className="segmented-control" role="group" aria-labelledby="validation-mode-label">
+              <button
+                type="button"
+                className={`segmented-option ${!clampMode ? 'segmented-option--active' : ''}`}
+                onClick={() => setClampMode(false)}
+                aria-pressed={!clampMode}
+              >
+                Reject
+              </button>
+              <button
+                type="button"
+                className={`segmented-option ${clampMode ? 'segmented-option--active' : ''}`}
+                onClick={() => setClampMode(true)}
+                aria-pressed={clampMode}
+              >
+                Clamp
+              </button>
+            </div>
+            <span className="control-hint">
+              {clampMode
+                ? 'Invalid positions auto-correct to nearest valid'
+                : 'Invalid positions stay put; you must fix manually'}
+            </span>
+          </div>
           <button onClick={handleRotate} aria-label="Rotate tool 90 degrees">
             Rotate 90° (R)
           </button>
-          <label>
-            <input
-              type="checkbox"
-              checked={clampMode}
-              onChange={(e) => setClampMode(e.target.checked)}
-              aria-describedby="clamp-desc"
-            />
-            <span id="clamp-desc">Clamp to safe zone</span>
-          </label>
           <label>
             <input
               type="checkbox"
@@ -112,7 +144,7 @@ function App() {
               onChange={(e) => setShowBounds(e.target.checked)}
               aria-describedby="bounds-desc"
             />
-            <span id="bounds-desc">Show bounds</span>
+            <span id="bounds-desc">Show footprint bounds (auto when invalid)</span>
           </label>
         </div>
         <div className="shortcuts">

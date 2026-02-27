@@ -142,3 +142,50 @@ _(See original sections — all implemented.)_
 - Logic suitable for future GLB integration (Box3, same validation)
 - Polished UI/UX that makes a strong first impression
 - Performant interaction and rendering
+
+---
+
+## 15. Client-Ready Polish (GPT Feedback)
+
+### Priority 1 — Make the demo feel "client-ready"
+
+1. **Visible labels for safe zone** — Add overlay note so non-technical viewers understand in 3 seconds:
+
+- "Green inset = 10mm safe zone"
+- "Red tool = invalid placement"
+
+1. **Make invalid state very obvious** — Brighter red, stronger emissive glow, show text "Outside safe zone" in overlay when invalid. Strong enough for screen recording/Loom.
+2. **Show footprint/bounds clearly** — Enable bounds by default (or when invalid) so validation logic is visually explained.
+
+### Priority 2 — Validation mode (Reject vs Clamp)
+
+1. **Make clamp vs reject visible and intentional** — Replace checkbox with:
+
+- "Validation mode: Reject | Clamp" toggle
+- Default: Reject
+- Brief explanation in overlay (placement policy, not just geometry)
+
+### Priority 3 — Prepare for "GLB next" conversation
+
+1. **README: "Next step: GLB-based bounds"** — Short section on swapping placeholder → GLB, `Box3.setFromObject`, transformed footprint.
+2. **Code comment** — ToolObject / validation: current = placeholder; next = GLB with Box3-derived bounds.
+
+### Must-do checklist
+
+- [x] Make invalid state more obvious
+- [x] Add overlay explanation of safe zone / validity
+- [x] Ensure rotation visibly updates validation
+- [x] Ensure clamp toggle is easy to understand (Reject | Clamp)
+- [x] Scene clean for screen sharing
+
+### Good-to-have
+
+- [x] Show bounds by default or on invalid
+- [x] README: "Next step: GLB-based bounds"
+- [ ] Demo flow doc for Loom/screen recording
+
+### Skip for now
+
+- frameloop demand, lazy canvas, passive listeners
+- Thicker line rendering, advanced materials
+- Multi-object collisions, export pipeline

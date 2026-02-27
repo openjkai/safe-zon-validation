@@ -68,17 +68,17 @@ npm run lint:fix
 - **Single tool**: No collision between multiple tools
 - **Axis-aligned footprint**: Validation uses AABB (axis-aligned bounding box) projected onto the base plane
 
-## Extending for GLB Models
+## Next Step: GLB-Based Bounds
 
-To replace the box with a real tool GLB:
+The current object is a **placeholder box**. The validation logic is already separated from the mesh representation, so swapping to real tool GLBs is the natural next step:
 
-1. Load the GLB with `useGLTF` (from Drei) or `GLTFLoader`
-2. Replace the box mesh with `<primitive object={gltf.scene} />`
-3. For bounds, use `new THREE.Box3().setFromObject(mesh)` in world space
-4. Project the Box3 min/max onto the XZ plane to get footprint extents
-5. Pass those extents into the same `isWithinSafeZone` logic (or add a variant that accepts `Box3` directly)
+1. **Load the GLB** with `useGLTF` (from Drei) or `GLTFLoader`
+2. **Replace the box** with `<primitive object={gltf.scene} />`
+3. **Derive bounds** with `new THREE.Box3().setFromObject(mesh)` in world space
+4. **Project** the Box3 min/max onto the XZ plane to get footprint extents
+5. **Feed** those extents into the existing `isWithinSafeZone` logic (or add a variant that accepts `Box3` directly)
 
-The `validation.ts` module is designed to be swapped or extended for GLB-based bounds. The functions `getFootprintForRotation` and `isWithinSafeZone` encode the core logic and can accept derived footprint data from `THREE.Box3`.
+The `validation.ts` module and `getFootprintForRotation` / `isWithinSafeZone` encode the core logic and are designed to accept derived footprint data from `THREE.Box3`.
 
 ## Project Structure
 

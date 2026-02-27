@@ -1,3 +1,10 @@
+/**
+ * ToolObject — Draggable tool placeholder with safe-zone validation.
+ *
+ * Current: Box geometry as placeholder. Next step: replace with GLB via
+ * <primitive object={gltf.scene} />, derive bounds with Box3.setFromObject(mesh),
+ * and feed transformed footprint into the same validation logic.
+ */
 import {
   useRef,
   useState,
@@ -130,7 +137,8 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
     }
   })
 
-  const color = isValid ? '#4ade80' : '#ef4444'
+  const color = isValid ? '#4ade80' : '#dc2626'
+  const emissiveIntensity = isValid ? 0 : 0.35
 
   return (
     <group>
@@ -140,8 +148,8 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
           color={color}
           metalness={0.3}
           roughness={0.4}
-          emissive={isValid ? '#000000' : '#3f0a0a'}
-          emissiveIntensity={isValid ? 0 : 0.15}
+          emissive={isValid ? '#000000' : '#7f1d1d'}
+          emissiveIntensity={emissiveIntensity}
         />
       </mesh>
       {showBounds && <BoundsHelper meshRef={meshRef} />}
