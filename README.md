@@ -24,11 +24,41 @@ This demo shows how to validate that a 3D tool stays within a safe margin of a w
 - Drei (@react-three/drei)
 - Three.js
 
-## Running the Demo
+## Getting Started
 
 ```bash
 npm install
 npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## Development Setup
+
+### VS Code (Recommended)
+
+This project includes workspace settings for format-on-save and ESLint:
+
+1. Open the project in VS Code
+2. When prompted, install the recommended extensions:
+   - **ESLint** — Linting
+   - **Prettier** — Code formatting
+3. Format on save and ESLint auto-fix are enabled automatically
+
+### Format & Lint
+
+```bash
+# Format all files
+npm run format
+
+# Check formatting without writing
+npm run format:check
+
+# Lint
+npm run lint
+
+# Lint and auto-fix
+npm run lint:fix
 ```
 
 ## Current Assumptions
@@ -56,13 +86,17 @@ The `validation.ts` module is designed to be swapped or extended for GLB-based b
 src/
 ├── components/
 │   ├── BasePlane.tsx    # Workspace plane + safe zone outline
-│   ├── Scene.tsx       # Lights, controls, composition
+│   ├── Scene.tsx        # Lights, controls, composition
 │   └── ToolObject.tsx   # Draggable box + validation feedback
 ├── hooks/
 │   └── useDragOnPlane.ts  # Raycast-based drag on XZ plane
 ├── validation/
-│   └── validation.ts   # Safe zone bounds, footprint math, validation
+│   └── validation.ts     # Safe zone bounds, footprint math, validation
 ├── types.ts
 ├── App.tsx
 └── main.tsx
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE) for details.

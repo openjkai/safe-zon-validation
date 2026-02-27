@@ -1,6 +1,6 @@
 ---
 name: Safe Zone Validation Demo
-overview: "Build a React Three Fiber proof-of-concept demo for safe-zone validation: a draggable 3D box on a base plane with a 10mm margin, footprint-based validation, rotation support, and performant interaction using refs."
+overview: 'Build a React Three Fiber proof-of-concept demo for safe-zone validation: a draggable 3D box on a base plane with a 10mm margin, footprint-based validation, rotation support, and performant interaction using refs.'
 todos: []
 isProject: false
 ---
@@ -92,7 +92,7 @@ Core logic, mm-aware and GLB-ready.
 
 ## 6–10. Scene, App, Rotation, Nice-to-Haves, README
 
-*(See original sections — all implemented.)*
+_(See original sections — all implemented.)_
 
 ---
 

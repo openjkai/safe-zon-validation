@@ -54,12 +54,7 @@ export function isWithinSafeZone(
   const minZ = position.z - halfD
   const maxZ = position.z + halfD
 
-  return (
-    minX >= bounds.minX &&
-    maxX <= bounds.maxX &&
-    minZ >= bounds.minZ &&
-    maxZ <= bounds.maxZ
-  )
+  return minX >= bounds.minX && maxX <= bounds.maxX && minZ >= bounds.minZ && maxZ <= bounds.maxZ
 }
 
 /**

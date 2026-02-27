@@ -1,11 +1,7 @@
 import { useMemo, memo } from 'react'
 import * as THREE from 'three'
 import { Grid } from '@react-three/drei'
-import {
-  WORKSPACE_WIDTH,
-  WORKSPACE_DEPTH,
-  getSafeZoneBounds,
-} from '../validation/validation'
+import { WORKSPACE_WIDTH, WORKSPACE_DEPTH, getSafeZoneBounds } from '../validation/validation'
 
 export const BasePlane = memo(function BasePlane() {
   const bounds = getSafeZoneBounds()
@@ -29,7 +25,7 @@ export const BasePlane = memo(function BasePlane() {
       pts[3],
       pts[0],
     ])
-  }, [])
+  }, [bounds.minX, bounds.maxX, bounds.minZ, bounds.maxZ])
 
   return (
     <group position={[WORKSPACE_WIDTH / 2, 0, WORKSPACE_DEPTH / 2]}>

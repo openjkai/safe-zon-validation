@@ -28,8 +28,13 @@ export function useDragOnPlane({
   const isDragging = useRef(false)
   const onPositionChangeRef = useRef(onPositionChange)
   const clampPositionRef = useRef(clampPosition)
-  onPositionChangeRef.current = onPositionChange
-  clampPositionRef.current = clampPosition
+  const onDragChangeRef = useRef(onDragChange)
+
+  useEffect(() => {
+    onPositionChangeRef.current = onPositionChange
+    clampPositionRef.current = clampPosition
+    onDragChangeRef.current = onDragChange
+  })
 
   const getIntersection = useCallback(
     (clientX: number, clientY: number): THREE.Vector3 | null => {
@@ -44,9 +49,6 @@ export function useDragOnPlane({
     },
     [camera, gl]
   )
-
-  const onDragChangeRef = useRef(onDragChange)
-  onDragChangeRef.current = onDragChange
 
   const handlePointerDown = useCallback(
     (e: { stopPropagation: () => void; pointerId: number }) => {

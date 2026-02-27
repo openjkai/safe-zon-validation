@@ -25,7 +25,7 @@ function App() {
     setPosition(pos.clone())
   }, [])
 
-  const handleValidationChange = useCallback(setIsValid, [])
+  const handleValidationChange = useCallback((valid: boolean) => setIsValid(valid), [])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -88,18 +88,12 @@ function App() {
         </div>
         <div className="data-row">
           <span className="data-label">Status</span>
-          <span
-            className={`status-pill ${isValid ? 'valid' : 'invalid'}`}
-            role="status"
-          >
+          <span className={`status-pill ${isValid ? 'valid' : 'invalid'}`} role="status">
             {isValid ? 'Valid' : 'Invalid'}
           </span>
         </div>
         <div className="controls">
-          <button
-            onClick={handleRotate}
-            aria-label="Rotate tool 90 degrees"
-          >
+          <button onClick={handleRotate} aria-label="Rotate tool 90 degrees">
             Rotate 90° (R)
           </button>
           <label>
@@ -122,7 +116,8 @@ function App() {
           </label>
         </div>
         <div className="shortcuts">
-          <strong>Shortcuts:</strong> <kbd>R</kbd> rotate · <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> nudge
+          <strong>Shortcuts:</strong> <kbd>R</kbd> rotate · <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd>{' '}
+          <kbd>→</kbd> nudge
         </div>
       </aside>
     </div>

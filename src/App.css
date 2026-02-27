@@ -10,8 +10,8 @@
   --status-invalid-text: #f87171;
   --accent: #38bdf8;
   --radius: 12px;
-  --font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
 }
 
 .demo-root {
@@ -104,7 +104,7 @@
 }
 
 .status-pill::before {
-  content: "";
+  content: '';
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -128,7 +128,9 @@
   border: 1px solid var(--overlay-border);
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
 
 .demo-overlay button:hover {
@@ -150,7 +152,7 @@
   color: var(--overlay-text);
 }
 
-.demo-overlay input[type="checkbox"] {
+.demo-overlay input[type='checkbox'] {
   width: 16px;
   height: 16px;
   accent-color: var(--accent);

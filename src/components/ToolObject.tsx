@@ -63,11 +63,7 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
     () =>
       clampMode
         ? (pos: THREE.Vector3) => {
-            const c = clampToSafeZone(
-              { x: pos.x, y: pos.y, z: pos.z },
-              TOOL_SIZE,
-              rotationY
-            )
+            const c = clampToSafeZone({ x: pos.x, y: pos.y, z: pos.z }, TOOL_SIZE, rotationY)
             return new THREE.Vector3(c.x, c.y, c.z)
           }
         : undefined,
@@ -82,31 +78,40 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
     onDragChange,
   })
 
-  useImperativeHandle(ref, () => ({
-    nudge(dx: number, dz: number) {
-      if (!meshRef.current) return
-      meshRef.current.position.x += dx
-      meshRef.current.position.z += dz
-      if (clampPosition) {
-        const c = clampToSafeZone(
-          { x: meshRef.current.position.x, y: meshRef.current.position.y, z: meshRef.current.position.z },
-          TOOL_SIZE,
-          rotationY
-        )
-        meshRef.current.position.set(c.x, c.y, c.z)
-      }
-      handlePositionChange(meshRef.current.position.clone())
-    },
-    getPosition() {
-      return meshRef.current?.position.clone() ?? new THREE.Vector3(...INITIAL_POSITION)
-    },
-  }), [handlePositionChange, clampPosition, rotationY])
+  useImperativeHandle(
+    ref,
+    () => ({
+      nudge(dx: number, dz: number) {
+        if (!meshRef.current) return
+        meshRef.current.position.x += dx
+        meshRef.current.position.z += dz
+        if (clampPosition) {
+          const c = clampToSafeZone(
+            {
+              x: meshRef.current.position.x,
+              y: meshRef.current.position.y,
+              z: meshRef.current.position.z,
+            },
+            TOOL_SIZE,
+            rotationY
+          )
+          meshRef.current.position.set(c.x, c.y, c.z)
+        }
+        handlePositionChange(meshRef.current.position.clone())
+      },
+      getPosition() {
+        return meshRef.current?.position.clone() ?? new THREE.Vector3(...INITIAL_POSITION)
+      },
+    }),
+    [handlePositionChange, clampPosition, rotationY]
+  )
 
   useLayoutEffect(() => {
     if (meshRef.current) {
       meshRef.current.position.set(...INITIAL_POSITION)
       meshRef.current.rotation.y = rotationY
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, [])
 
   useLayoutEffect(() => {
@@ -144,32 +149,26 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
   )
 })
 
-function BoundsHelper({
-  meshRef,
-}: {
-  meshRef: React.RefObject<THREE.Mesh | null>
-}) {
-  const helperRef = useRef<THREE.BoxHelper | null>(null)
-  const [ready, setReady] = useState(false)
+function BoundsHelper({ meshRef }: { meshRef: React.RefObject<THREE.Mesh | null> }) {
+  const [helper, setHelper] = useState<THREE.BoxHelper | null>(null)
 
   useLayoutEffect(() => {
-    if (!meshRef.current) return
-    const h = new THREE.BoxHelper(meshRef.current, 0x666666)
-    helperRef.current = h
-    setReady(true)
+    const mesh = meshRef.current
+    if (!mesh) return
+    const h = new THREE.BoxHelper(mesh, 0x666666)
+    setHelper(h)
     return () => {
       h.dispose()
-      helperRef.current = null
-      setReady(false)
+      setHelper(null)
     }
   }, [meshRef])
 
   useFrame(() => {
-    if (helperRef.current && meshRef.current) {
-      helperRef.current.setFromObject(meshRef.current)
+    if (helper && meshRef.current) {
+      helper.setFromObject(meshRef.current)
     }
   })
 
-  if (!ready || !meshRef.current) return null
-  return <primitive object={helperRef.current!} />
+  if (!helper) return null
+  return <primitive object={helper} />
 }
