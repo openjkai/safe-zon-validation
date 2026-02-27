@@ -3,10 +3,10 @@
  * Rotates with camera orbit so N always points toward world -Z (↑ key direction).
  */
 export function Compass({ azimuth = 0 }: { azimuth?: number }) {
-  const rotationDeg = (azimuth * 180) / Math.PI
+  const rotationDeg = -(azimuth * 180) / Math.PI
   return (
     <div
-      className="absolute top-6 right-6 z-10 px-5 py-4 rounded-xl bg-background/95 backdrop-blur-xl border border-border shadow-2xl"
+      className="absolute top-6 right-6 z-10 px-4 py-3 rounded-xl bg-background/95 backdrop-blur-xl border border-border shadow-2xl"
       role="img"
       aria-label="Compass: arrow keys move tool in cardinal directions"
     >
