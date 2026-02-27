@@ -2,6 +2,7 @@ import { forwardRef } from 'react'
 import { OrbitControls } from '@react-three/drei'
 import { BasePlane } from './BasePlane'
 import { ToolObject, type ToolObjectRef } from './ToolObject'
+import { CameraAngleReporter } from './CameraAngleReporter'
 import * as THREE from 'three'
 import {
   AMBIENT_LIGHT_INTENSITY,
@@ -27,6 +28,7 @@ export interface SceneProps {
   clampMode?: boolean
   showBounds?: boolean
   isDragging?: boolean
+  onCameraAzimuthChange?: (azimuth: number) => void
   onPositionChange?: (pos: THREE.Vector3) => void
   onValidationChange?: (valid: boolean) => void
   onDragChange?: (dragging: boolean) => void
@@ -38,6 +40,7 @@ export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
     clampMode = false,
     showBounds = false,
     isDragging = false,
+    onCameraAzimuthChange,
     onPositionChange,
     onValidationChange,
     onDragChange,
@@ -62,6 +65,7 @@ export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
       />
       <directionalLight position={[...FILL_LIGHT_POSITION]} intensity={FILL_LIGHT_INTENSITY} />
       <directionalLight position={[...BOTTOM_LIGHT_POSITION]} intensity={BOTTOM_LIGHT_INTENSITY} />
+      {onCameraAzimuthChange && <CameraAngleReporter onAzimuthChange={onCameraAzimuthChange} />}
       <OrbitControls
         enabled={!isDragging}
         target={[...ORBIT_TARGET]}

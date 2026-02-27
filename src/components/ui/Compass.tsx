@@ -1,18 +1,22 @@
 /**
  * Compass indicator showing cardinal directions (N/S/E/W) to clarify arrow-key movement.
- * ↑ = N, ↓ = S, ← = W, → = E
+ * Rotates with camera orbit so N always points toward world -Z (↑ key direction).
  */
-export function Compass() {
+export function Compass({ azimuth = 0 }: { azimuth?: number }) {
+  const rotationDeg = (azimuth * 180) / Math.PI
   return (
     <div
-      className="absolute top-6 right-6 z-10 p-4 rounded-xl bg-background/95 backdrop-blur-xl border border-border shadow-2xl"
+      className="absolute top-6 right-6 z-10 px-5 py-4 rounded-xl bg-background/95 backdrop-blur-xl border border-border shadow-2xl"
       role="img"
       aria-label="Compass: arrow keys move tool in cardinal directions"
     >
       <p className="text-[11px] font-semibold text-muted-foreground text-center mb-3">
         Arrow keys ↑↓←→ move tool
       </p>
-      <div className="relative w-[72px] h-[72px] mx-auto">
+      <div
+        className="relative w-[72px] h-[72px] mx-auto transition-transform duration-150"
+        style={{ transform: `rotate(${rotationDeg}deg)` }}
+      >
         <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 text-xs font-bold text-primary">
           N
         </span>
