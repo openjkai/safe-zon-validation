@@ -107,7 +107,7 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
   }, [])
 
   useLayoutEffect(() => {
-    meshRef.current!.rotation.y = rotationY
+    if (meshRef.current) meshRef.current.rotation.y = rotationY
   }, [rotationY])
 
   useFrame(() => {

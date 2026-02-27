@@ -23,6 +23,8 @@ function App() {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return
+      const target = e.target as HTMLElement | null
+      if (target?.matches('input, textarea, [contenteditable="true"]')) return
       if (e.key === 'r' || e.key === 'R') {
         handleRotate()
       } else if (e.key === 'ArrowUp') {
