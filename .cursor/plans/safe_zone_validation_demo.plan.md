@@ -182,7 +182,7 @@ _(See original sections — all implemented.)_
 
 - [x] Show bounds by default or on invalid
 - [x] README: "Next step: GLB-based bounds"
-- [ ] Demo flow doc for Loom/screen recording
+- [x] Demo flow doc for Loom/screen recording
 
 ### Skip for now
 

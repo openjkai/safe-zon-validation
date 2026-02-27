@@ -237,6 +237,20 @@
   border-color: rgba(148, 163, 184, 0.3);
 }
 
+.demo-overlay .button-row {
+  display: flex;
+  gap: 8px;
+}
+
+.demo-overlay .button-row button {
+  flex: 1;
+}
+
+.demo-overlay .button--secondary {
+  background: rgba(148, 163, 184, 0.08);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
 .demo-overlay button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;

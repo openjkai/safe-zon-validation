@@ -27,6 +27,7 @@ const INITIAL_POSITION: [number, number, number] = [600, FIXED_Y, 300]
 export interface ToolObjectRef {
   nudge: (dx: number, dz: number) => void
   getPosition: () => THREE.Vector3
+  reset: () => void
 }
 
 export interface ToolObjectProps {
@@ -109,8 +110,15 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
       getPosition() {
         return meshRef.current?.position.clone() ?? new THREE.Vector3(...INITIAL_POSITION)
       },
+      reset() {
+        if (!meshRef.current) return
+        meshRef.current.position.set(...INITIAL_POSITION)
+        meshRef.current.rotation.y = 0
+        handlePositionChange(meshRef.current.position.clone())
+      },
     }),
-    [handlePositionChange, clampPosition, rotationY]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset always uses 0; clampPosition captures rotationY
+    [handlePositionChange, clampPosition]
   )
 
   useLayoutEffect(() => {

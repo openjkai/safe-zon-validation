@@ -27,6 +27,12 @@ function App() {
 
   const handleValidationChange = useCallback((valid: boolean) => setIsValid(valid), [])
 
+  const handleReset = useCallback(() => {
+    setRotationY(0)
+    setPosition(INITIAL_POS.clone())
+    toolRef.current?.reset()
+  }, [])
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return
@@ -134,9 +140,18 @@ function App() {
                 : 'Invalid positions stay put; you must fix manually'}
             </span>
           </div>
-          <button onClick={handleRotate} aria-label="Rotate tool 90 degrees">
-            Rotate 90° (R)
-          </button>
+          <div className="button-row">
+            <button onClick={handleRotate} aria-label="Rotate tool 90 degrees">
+              Rotate 90° (R)
+            </button>
+            <button
+              onClick={handleReset}
+              aria-label="Reset tool to center"
+              className="button--secondary"
+            >
+              Reset
+            </button>
+          </div>
           <label>
             <input
               type="checkbox"

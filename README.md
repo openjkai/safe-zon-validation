@@ -33,6 +33,17 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
+## Demo Flow (for Loom / Screen Recording)
+
+Use this sequence to tell the full story in ~60 seconds:
+
+1. **Start valid** — Object is green, inside the green safe zone
+2. **Drag toward edge** — Tool turns red, "Outside safe zone" appears, bounds wireframe shows
+3. **Rotate (R)** — Footprint updates; validation may flip valid ↔ invalid
+4. **Switch to Clamp mode** — Toggle from Reject to Clamp
+5. **Drag again** — Position auto-corrects to nearest valid spot
+6. **Reset** — Click Reset to return to center and repeat
+
 ## Development Setup
 
 ### VS Code (Recommended)
