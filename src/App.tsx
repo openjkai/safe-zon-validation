@@ -65,6 +65,7 @@ function App() {
           camera={{ position: [800, 600, 800], fov: 45 }}
           style={{ width: '100%', height: '100%' }}
           gl={{ antialias: true }}
+          shadows
         >
           <Scene
             ref={toolRef}
@@ -83,15 +84,34 @@ function App() {
         aria-label="Safe zone validation controls and status"
       >
         <h1>Safe Zone Validation</h1>
+
+        <div className="guide-section" role="status">
+          <h2 className="guide-title">What to do first</h2>
+          <ol className="guide-steps">
+            <li>
+              <strong>Drag</strong> the green tool onto the workspace — keep it inside the green rectangle
+            </li>
+            <li>
+              <strong>Orbit</strong> the camera (click + drag) to inspect from different angles
+            </li>
+            <li>
+              Press <kbd>R</kbd> to <strong>rotate</strong> the tool 90° and see how its footprint changes
+            </li>
+            <li>
+              Use <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> to <strong>nudge</strong> the tool
+            </li>
+          </ol>
+        </div>
+
         <p className="subtitle">
-          Drag the tool within the safe zone. Rotate to see footprint update.
+          Keep the tool inside the green safe zone. Red = invalid placement.
         </p>
         <div className="legend">
           <span className="legend-item">
-            <span className="legend-dot legend-dot--safe" /> Green inset = 10mm safe zone
+            <span className="legend-dot legend-dot--safe" /> Green rectangle = 10mm safe zone
           </span>
           <span className="legend-item">
-            <span className="legend-dot legend-dot--invalid" /> Red tool = invalid placement
+            <span className="legend-dot legend-dot--invalid" /> Red tool = outside safe zone
           </span>
         </div>
         {!isValid && (

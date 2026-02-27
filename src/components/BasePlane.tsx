@@ -1,4 +1,4 @@
-import { useMemo, memo } from 'react'
+import { useMemo, useEffect, memo } from 'react'
 import * as THREE from 'three'
 import { Grid } from '@react-three/drei'
 import { WORKSPACE_WIDTH, WORKSPACE_DEPTH, getSafeZoneBounds } from '../validation/validation'
@@ -27,11 +27,21 @@ export const BasePlane = memo(function BasePlane() {
     ])
   }, [bounds.minX, bounds.maxX, bounds.minZ, bounds.maxZ])
 
+  useEffect(() => {
+    const geometry = safeZoneLineGeometry
+    return () => geometry.dispose()
+  }, [safeZoneLineGeometry])
+
   return (
     <group position={[WORKSPACE_WIDTH / 2, 0, WORKSPACE_DEPTH / 2]}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[WORKSPACE_WIDTH, WORKSPACE_DEPTH]} />
-        <meshStandardMaterial color="#f8fafc" metalness={0.05} roughness={0.9} />
+        <meshStandardMaterial
+          color="#f8fafc"
+          metalness={0.05}
+          roughness={0.9}
+          side={THREE.DoubleSide}
+        />
       </mesh>
       <Grid
         args={[WORKSPACE_WIDTH, WORKSPACE_DEPTH]}

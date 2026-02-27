@@ -91,19 +91,13 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
     () => ({
       nudge(dx: number, dz: number) {
         if (!meshRef.current) return
-        meshRef.current.position.x += dx
-        meshRef.current.position.z += dz
+        const tentative = meshRef.current.position.clone()
+        tentative.x += dx
+        tentative.z += dz
         if (clampPosition) {
-          const c = clampToSafeZone(
-            {
-              x: meshRef.current.position.x,
-              y: meshRef.current.position.y,
-              z: meshRef.current.position.z,
-            },
-            TOOL_SIZE,
-            rotationY
-          )
-          meshRef.current.position.set(c.x, c.y, c.z)
+          meshRef.current.position.copy(clampPosition(tentative))
+        } else {
+          meshRef.current.position.copy(tentative)
         }
         handlePositionChange(meshRef.current.position.clone())
       },
@@ -113,11 +107,10 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
       reset() {
         if (!meshRef.current) return
         meshRef.current.position.set(...INITIAL_POSITION)
-        meshRef.current.rotation.y = 0
         handlePositionChange(meshRef.current.position.clone())
       },
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset always uses 0; clampPosition captures rotationY
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- clampPosition captures rotationY; rotation from prop only
     [handlePositionChange, clampPosition]
   )
 
@@ -150,7 +143,7 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
 
   return (
     <group>
-      <mesh ref={meshRef} rotation={[0, rotationY, 0]} onPointerDown={handlePointerDown}>
+      <mesh ref={meshRef} rotation={[0, rotationY, 0]} castShadow onPointerDown={handlePointerDown}>
         <boxGeometry args={[TOOL_SIZE.w, TOOL_SIZE.h, TOOL_SIZE.d]} />
         <meshStandardMaterial
           color={color}

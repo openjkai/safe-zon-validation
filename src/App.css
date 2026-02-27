@@ -15,7 +15,7 @@
 }
 
 .demo-root {
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   position: relative;
   overflow: hidden;
@@ -56,6 +56,47 @@
   font-size: 18px;
   font-weight: 600;
   letter-spacing: -0.02em;
+}
+
+.guide-section {
+  margin: 12px 0 16px;
+  padding: 12px 14px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 8px;
+}
+
+.guide-title {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.guide-steps {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--overlay-text);
+}
+
+.guide-steps li {
+  margin-bottom: 6px;
+}
+
+.guide-steps li:last-child {
+  margin-bottom: 0;
+}
+
+.guide-steps kbd {
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: rgba(56, 189, 248, 0.2);
+  border-radius: 4px;
 }
 
 .demo-overlay .subtitle {
@@ -114,6 +155,12 @@
   }
   50% {
     opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invalid-banner {
+    animation: none;
   }
 }
 
