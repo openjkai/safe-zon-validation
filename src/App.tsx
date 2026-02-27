@@ -26,12 +26,16 @@ function App() {
       if (e.key === 'r' || e.key === 'R') {
         handleRotate()
       } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
         toolRef.current?.nudge(0, -NUDGE_STEP)
       } else if (e.key === 'ArrowDown') {
+        e.preventDefault()
         toolRef.current?.nudge(0, NUDGE_STEP)
       } else if (e.key === 'ArrowLeft') {
+        e.preventDefault()
         toolRef.current?.nudge(-NUDGE_STEP, 0)
       } else if (e.key === 'ArrowRight') {
+        e.preventDefault()
         toolRef.current?.nudge(NUDGE_STEP, 0)
       }
     }
