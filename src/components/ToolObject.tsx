@@ -1,10 +1,3 @@
-/**
- * ToolObject — Draggable tool placeholder with safe-zone validation.
- *
- * Current: Box geometry as placeholder. Next step: replace with GLB via
- * <primitive object={gltf.scene} />, derive bounds with Box3.setFromObject(mesh),
- * and feed transformed footprint into the same validation logic.
- */
 import {
   useRef,
   useState,
@@ -18,11 +11,9 @@ import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { isWithinSafeZone, clampToSafeZone } from '../validation/validation'
 import { useDragOnPlane } from '../hooks/useDragOnPlane'
-
-const TOOL_SIZE = { w: 120, d: 60, h: 40 }
-const FIXED_Y = TOOL_SIZE.h / 2
-
-const INITIAL_POSITION: [number, number, number] = [600, FIXED_Y, 300]
+import { TOOL_SIZE, TOOL_FIXED_Y, INITIAL_POSITION } from '../constants'
+import { COLORS, MATERIALS } from '../constants'
+import { vec3ToObj, objToVec3 } from '../lib/vector'
 
 export interface ToolObjectRef {
   nudge: (dx: number, dz: number) => void
@@ -37,6 +28,17 @@ export interface ToolObjectProps {
   onPositionChange?: (pos: THREE.Vector3) => void
   onValidationChange?: (valid: boolean) => void
   onDragChange?: (dragging: boolean) => void
+}
+
+function notifyValidationIfChanged(
+  valid: boolean,
+  lastValidRef: React.MutableRefObject<boolean>,
+  onValidationChange?: (v: boolean) => void
+): boolean {
+  if (lastValidRef.current === valid) return false
+  lastValidRef.current = valid
+  onValidationChange?.(valid)
+  return true
 }
 
 export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function ToolObject(
@@ -57,12 +59,9 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
   const handlePositionChange = useCallback(
     (pos: THREE.Vector3) => {
       onPositionChange?.(pos)
-      const valid = isWithinSafeZone({ x: pos.x, y: pos.y, z: pos.z }, TOOL_SIZE, rotationY)
+      const valid = isWithinSafeZone(vec3ToObj(pos), TOOL_SIZE, rotationY)
       setIsValid(valid)
-      if (lastValidRef.current !== valid) {
-        lastValidRef.current = valid
-        onValidationChange?.(valid)
-      }
+      notifyValidationIfChanged(valid, lastValidRef, onValidationChange)
     },
     [rotationY, onPositionChange, onValidationChange]
   )
@@ -70,17 +69,14 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
   const clampPosition = useMemo(
     () =>
       clampMode
-        ? (pos: THREE.Vector3) => {
-            const c = clampToSafeZone({ x: pos.x, y: pos.y, z: pos.z }, TOOL_SIZE, rotationY)
-            return new THREE.Vector3(c.x, c.y, c.z)
-          }
+        ? (pos: THREE.Vector3) => objToVec3(clampToSafeZone(vec3ToObj(pos), TOOL_SIZE, rotationY))
         : undefined,
     [clampMode, rotationY]
   )
 
   const { handlePointerDown } = useDragOnPlane({
     meshRef,
-    fixedY: FIXED_Y,
+    fixedY: TOOL_FIXED_Y,
     onPositionChange: handlePositionChange,
     clampPosition,
     onDragChange,
@@ -94,11 +90,8 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
         const tentative = meshRef.current.position.clone()
         tentative.x += dx
         tentative.z += dz
-        if (clampPosition) {
-          meshRef.current.position.copy(clampPosition(tentative))
-        } else {
-          meshRef.current.position.copy(tentative)
-        }
+        const final = clampPosition ? clampPosition(tentative) : tentative
+        meshRef.current.position.copy(final)
         handlePositionChange(meshRef.current.position.clone())
       },
       getPosition() {
@@ -128,17 +121,16 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
   useFrame(() => {
     if (!meshRef.current) return
     const pos = meshRef.current.position
-    const valid = isWithinSafeZone({ x: pos.x, y: pos.y, z: pos.z }, TOOL_SIZE, rotationY)
-    if (lastValidRef.current !== valid) {
-      lastValidRef.current = valid
+    const valid = isWithinSafeZone(vec3ToObj(pos), TOOL_SIZE, rotationY)
+    if (notifyValidationIfChanged(valid, lastValidRef, onValidationChange)) {
       setIsValid(valid)
-      onValidationChange?.(valid)
       onPositionChange?.(pos.clone())
     }
   })
 
-  const color = isValid ? '#4ade80' : '#dc2626'
-  const emissiveIntensity = isValid ? 0 : 0.35
+  const color = isValid ? COLORS.TOOL_VALID : COLORS.TOOL_INVALID
+  const emissive = isValid ? '#000000' : COLORS.TOOL_EMISSIVE_INVALID
+  const emissiveIntensity = isValid ? 0 : MATERIALS.TOOL.emissiveIntensityInvalid
 
   return (
     <group>
@@ -146,9 +138,9 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
         <boxGeometry args={[TOOL_SIZE.w, TOOL_SIZE.h, TOOL_SIZE.d]} />
         <meshStandardMaterial
           color={color}
-          metalness={0.3}
-          roughness={0.4}
-          emissive={isValid ? '#000000' : '#7f1d1d'}
+          metalness={MATERIALS.TOOL.metalness}
+          roughness={MATERIALS.TOOL.roughness}
+          emissive={emissive}
           emissiveIntensity={emissiveIntensity}
         />
       </mesh>
@@ -163,7 +155,7 @@ function BoundsHelper({ meshRef }: { meshRef: React.RefObject<THREE.Mesh | null>
   useLayoutEffect(() => {
     const mesh = meshRef.current
     if (!mesh) return
-    const h = new THREE.BoxHelper(mesh, 0x666666)
+    const h = new THREE.BoxHelper(mesh, COLORS.BOUNDS_HELPER)
     setHelper(h)
     return () => {
       h.dispose()
@@ -172,9 +164,7 @@ function BoundsHelper({ meshRef }: { meshRef: React.RefObject<THREE.Mesh | null>
   }, [meshRef])
 
   useFrame(() => {
-    if (helper && meshRef.current) {
-      helper.setFromObject(meshRef.current)
-    }
+    if (helper && meshRef.current) helper.setFromObject(meshRef.current)
   })
 
   if (!helper) return null

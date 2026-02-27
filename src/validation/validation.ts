@@ -1,11 +1,8 @@
 import type { FootprintSize, SafeZoneBounds } from '../types'
+import { WORKSPACE_WIDTH, WORKSPACE_DEPTH, SAFE_ZONE_MARGIN } from '../constants'
+import { rotationToQuarterTurns } from '../lib/math'
 
-/** Workspace dimensions in mm */
-export const WORKSPACE_WIDTH = 1200
-export const WORKSPACE_DEPTH = 600
-
-/** Safe zone inset from all edges in mm */
-export const SAFE_ZONE_MARGIN = 10
+export { WORKSPACE_WIDTH, WORKSPACE_DEPTH, SAFE_ZONE_MARGIN }
 
 /**
  * Returns the valid placement bounds (inner rectangle inset by margin).
@@ -28,8 +25,7 @@ export function getFootprintForRotation(
   size: FootprintSize
 ): { halfW: number; halfD: number } {
   const { w, d } = size
-  const norm = ((rotationY % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
-  const quarterTurns = Math.round(norm / (Math.PI / 2)) % 4
+  const quarterTurns = rotationToQuarterTurns(rotationY)
   const evenSwap = quarterTurns === 0 || quarterTurns === 2
   return {
     halfW: (evenSwap ? w : d) / 2,
@@ -39,7 +35,6 @@ export function getFootprintForRotation(
 
 /**
  * Checks whether the object's footprint (bounds) remains inside the safe zone.
- * Uses position (center) and footprint half-extents.
  */
 export function isWithinSafeZone(
   position: { x: number; y: number; z: number },

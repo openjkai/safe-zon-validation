@@ -3,6 +3,24 @@ import { OrbitControls } from '@react-three/drei'
 import { BasePlane } from './BasePlane'
 import { ToolObject, type ToolObjectRef } from './ToolObject'
 import * as THREE from 'three'
+import {
+  AMBIENT_LIGHT_INTENSITY,
+  HEMISPHERE_LIGHT,
+  HEMISPHERE_LIGHT_POSITION,
+  MAIN_LIGHT_POSITION,
+  MAIN_LIGHT_INTENSITY,
+  FILL_LIGHT_POSITION,
+  FILL_LIGHT_INTENSITY,
+  BOTTOM_LIGHT_POSITION,
+  BOTTOM_LIGHT_INTENSITY,
+  ORBIT_TARGET,
+  ORBIT_MIN_POLAR_ANGLE,
+  ORBIT_MAX_POLAR_ANGLE,
+  ORBIT_DAMPING_FACTOR,
+  SHADOW_MAP_SIZE,
+  SHADOW_CAMERA_FAR,
+  SHADOW_CAMERA_BOUNDS,
+} from '../constants/scene'
 
 export interface SceneProps {
   rotationY: number
@@ -26,31 +44,31 @@ export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
 ) {
   return (
     <>
-      <ambientLight intensity={0.5} />
-      <hemisphereLight
-        args={['#ffffff', '#64748b', 0.6]}
-        position={[0, 400, 0]}
-      />
+      <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
+      <hemisphereLight args={HEMISPHERE_LIGHT} position={[...HEMISPHERE_LIGHT_POSITION]} />
       <directionalLight
-        position={[800, 600, 800]}
-        intensity={1.2}
+        position={[...MAIN_LIGHT_POSITION]}
+        intensity={MAIN_LIGHT_INTENSITY}
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-far={2000}
-        shadow-camera-left={-700}
-        shadow-camera-right={700}
-        shadow-camera-top={700}
-        shadow-camera-bottom={-700}
+        shadow-mapSize-width={SHADOW_MAP_SIZE}
+        shadow-mapSize-height={SHADOW_MAP_SIZE}
+        shadow-camera-far={SHADOW_CAMERA_FAR}
+        shadow-camera-left={-SHADOW_CAMERA_BOUNDS}
+        shadow-camera-right={SHADOW_CAMERA_BOUNDS}
+        shadow-camera-top={SHADOW_CAMERA_BOUNDS}
+        shadow-camera-bottom={-SHADOW_CAMERA_BOUNDS}
       />
-      <directionalLight position={[-400, 200, -400]} intensity={0.5} />
-      <directionalLight position={[0, -300, 400]} intensity={0.3} />
+      <directionalLight position={[...FILL_LIGHT_POSITION]} intensity={FILL_LIGHT_INTENSITY} />
+      <directionalLight
+        position={[...BOTTOM_LIGHT_POSITION]}
+        intensity={BOTTOM_LIGHT_INTENSITY}
+      />
       <OrbitControls
-        target={[600, 0, 300]}
-        minPolarAngle={0.15}
-        maxPolarAngle={Math.PI / 2 + 0.4}
+        target={[...ORBIT_TARGET]}
+        minPolarAngle={ORBIT_MIN_POLAR_ANGLE}
+        maxPolarAngle={ORBIT_MAX_POLAR_ANGLE}
         enableDamping
-        dampingFactor={0.05}
+        dampingFactor={ORBIT_DAMPING_FACTOR}
       />
       <BasePlane />
       <ToolObject
