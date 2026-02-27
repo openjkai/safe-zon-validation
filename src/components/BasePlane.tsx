@@ -1,19 +1,32 @@
-import { useMemo, memo } from 'react'
+import { useMemo, useEffect, memo } from 'react'
 import * as THREE from 'three'
 import { Grid } from '@react-three/drei'
 import { WORKSPACE_WIDTH, WORKSPACE_DEPTH, getSafeZoneBounds } from '../validation/validation'
+import { COLORS, MATERIALS } from '../constants'
+import {
+  SAFE_ZONE_LINE_Y,
+  GRID_OFFSET_Y,
+  GRID_CELL_SIZE,
+  GRID_CELL_THICKNESS,
+  GRID_SECTION_SIZE,
+  GRID_SECTION_THICKNESS,
+  GRID_FADE_FACTOR,
+  GRID_FADE_STRENGTH,
+  PLANE_ROTATION_X,
+} from '../constants/scene'
+
+const HALF_WIDTH = WORKSPACE_WIDTH / 2
+const HALF_DEPTH = WORKSPACE_DEPTH / 2
 
 export const BasePlane = memo(function BasePlane() {
   const bounds = getSafeZoneBounds()
 
   const safeZoneLineGeometry = useMemo(() => {
-    const offsetX = WORKSPACE_WIDTH / 2
-    const offsetZ = WORKSPACE_DEPTH / 2
     const pts: THREE.Vector3[] = [
-      new THREE.Vector3(bounds.minX - offsetX, 0.5, bounds.minZ - offsetZ),
-      new THREE.Vector3(bounds.maxX - offsetX, 0.5, bounds.minZ - offsetZ),
-      new THREE.Vector3(bounds.maxX - offsetX, 0.5, bounds.maxZ - offsetZ),
-      new THREE.Vector3(bounds.minX - offsetX, 0.5, bounds.maxZ - offsetZ),
+      new THREE.Vector3(bounds.minX - HALF_WIDTH, SAFE_ZONE_LINE_Y, bounds.minZ - HALF_DEPTH),
+      new THREE.Vector3(bounds.maxX - HALF_WIDTH, SAFE_ZONE_LINE_Y, bounds.minZ - HALF_DEPTH),
+      new THREE.Vector3(bounds.maxX - HALF_WIDTH, SAFE_ZONE_LINE_Y, bounds.maxZ - HALF_DEPTH),
+      new THREE.Vector3(bounds.minX - HALF_WIDTH, SAFE_ZONE_LINE_Y, bounds.maxZ - HALF_DEPTH),
     ]
     return new THREE.BufferGeometry().setFromPoints([
       pts[0],
@@ -27,28 +40,38 @@ export const BasePlane = memo(function BasePlane() {
     ])
   }, [bounds.minX, bounds.maxX, bounds.minZ, bounds.maxZ])
 
+  useEffect(() => {
+    const g = safeZoneLineGeometry
+    return () => g.dispose()
+  }, [safeZoneLineGeometry])
+
   return (
-    <group position={[WORKSPACE_WIDTH / 2, 0, WORKSPACE_DEPTH / 2]}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+    <group position={[HALF_WIDTH, 0, HALF_DEPTH]}>
+      <mesh rotation={[PLANE_ROTATION_X, 0, 0]} receiveShadow>
         <planeGeometry args={[WORKSPACE_WIDTH, WORKSPACE_DEPTH]} />
-        <meshStandardMaterial color="#f8fafc" metalness={0.05} roughness={0.9} />
+        <meshStandardMaterial
+          color={COLORS.PLANE_SURFACE}
+          metalness={MATERIALS.PLANE.metalness}
+          roughness={MATERIALS.PLANE.roughness}
+          side={THREE.DoubleSide}
+        />
       </mesh>
       <Grid
         args={[WORKSPACE_WIDTH, WORKSPACE_DEPTH]}
-        position={[0, 0.1, 0]}
-        cellSize={60}
-        cellThickness={0.5}
-        cellColor="#cbd5e1"
-        sectionSize={300}
-        sectionThickness={1}
-        sectionColor="#94a3b8"
-        fadeDistance={WORKSPACE_WIDTH * 0.8}
-        fadeStrength={1}
+        position={[0, GRID_OFFSET_Y, 0]}
+        cellSize={GRID_CELL_SIZE}
+        cellThickness={GRID_CELL_THICKNESS}
+        cellColor={COLORS.GRID_CELL}
+        sectionSize={GRID_SECTION_SIZE}
+        sectionThickness={GRID_SECTION_THICKNESS}
+        sectionColor={COLORS.GRID_SECTION}
+        fadeDistance={WORKSPACE_WIDTH * GRID_FADE_FACTOR}
+        fadeStrength={GRID_FADE_STRENGTH}
         followCamera={false}
         infiniteGrid={false}
       />
       <lineSegments geometry={safeZoneLineGeometry}>
-        <lineBasicMaterial color="#22c55e" />
+        <lineBasicMaterial color={COLORS.SAFE_ZONE_LINE} />
       </lineSegments>
     </group>
   )

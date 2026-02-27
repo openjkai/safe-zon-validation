@@ -1,3 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-overlay-text: #f1f5f9;
+  --color-overlay-muted: #94a3b8;
+  --color-accent: #38bdf8;
+  --color-status-valid-bg: rgba(34, 197, 94, 0.2);
+  --color-status-valid-text: #4ade80;
+  --color-status-invalid-bg: rgba(239, 68, 68, 0.35);
+  --color-status-invalid-text: #fca5a5;
+}
+
 * {
   margin: 0;
   padding: 0;
