@@ -1,5 +1,5 @@
 const BASE_CLASS =
-  'flex-1 px-5 py-3 text-sm font-medium rounded-lg cursor-pointer transition-all active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2'
+  'px-3 py-2 text-xs font-medium rounded-md cursor-pointer transition-all active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2'
 
 const PRIMARY_CLASS =
   'bg-primary text-primary-foreground border border-transparent hover:opacity-90'
