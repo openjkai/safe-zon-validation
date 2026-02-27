@@ -26,6 +26,7 @@ export interface SceneProps {
   rotationY: number
   clampMode?: boolean
   showBounds?: boolean
+  isDragging?: boolean
   onPositionChange?: (pos: THREE.Vector3) => void
   onValidationChange?: (valid: boolean) => void
   onDragChange?: (dragging: boolean) => void
@@ -36,6 +37,7 @@ export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
     rotationY,
     clampMode = false,
     showBounds = false,
+    isDragging = false,
     onPositionChange,
     onValidationChange,
     onDragChange,
@@ -64,6 +66,7 @@ export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
         intensity={BOTTOM_LIGHT_INTENSITY}
       />
       <OrbitControls
+        enabled={!isDragging}
         target={[...ORBIT_TARGET]}
         minPolarAngle={ORBIT_MIN_POLAR_ANGLE}
         maxPolarAngle={ORBIT_MAX_POLAR_ANGLE}
