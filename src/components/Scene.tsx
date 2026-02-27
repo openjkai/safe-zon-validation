@@ -10,6 +10,7 @@ export interface SceneProps {
   showBounds?: boolean
   onPositionChange?: (pos: THREE.Vector3) => void
   onValidationChange?: (valid: boolean) => void
+  onDragChange?: (dragging: boolean) => void
 }
 
 export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
@@ -19,13 +20,15 @@ export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
     showBounds = false,
     onPositionChange,
     onValidationChange,
+    onDragChange,
   },
   ref
 ) {
   return (
     <>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[800, 600, 800]} intensity={1} />
+      <ambientLight intensity={0.7} />
+      <directionalLight position={[800, 600, 800]} intensity={1.2} />
+      <directionalLight position={[-400, 200, -400]} intensity={0.4} />
       <OrbitControls target={[600, 0, 300]} />
       <BasePlane />
       <ToolObject
@@ -35,6 +38,7 @@ export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
         showBounds={showBounds}
         onPositionChange={onPositionChange}
         onValidationChange={onValidationChange}
+        onDragChange={onDragChange}
       />
     </>
   )

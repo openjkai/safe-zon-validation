@@ -1,15 +1,20 @@
 # Safe Zone Validation Demo
 
-A small React Three Fiber proof-of-concept demonstrating **safe-zone validation** for a 3D placement tool.
+A polished React Three Fiber proof-of-concept demonstrating **safe-zone validation** for a 3D placement tool. Designed to make a strong first impression with clear purpose, refined UI, and performant interaction.
+
+## Purpose
+
+This demo shows how to validate that a 3D tool stays within a safe margin of a workspace—useful for CNC, foam cutting, or any placement system where boundary compliance matters. The logic is built to extend to real GLB models with `THREE.Box3`-derived bounds.
 
 ## What It Demonstrates
 
-- A rectangular base plane (1200×600 mm) representing a workspace/foam base
-- One draggable tool placeholder (120×60×40 mm box)
+- A rectangular base plane (1200×600 mm) with grid, representing a workspace/foam base
+- One draggable tool placeholder (120×60×40 mm box) with metallic material
 - A **10 mm safe zone** inset from all edges, shown as a green outline
 - **Footprint-based validation**: the object turns red when any part of its bounds crosses the safe zone boundary
 - **90° rotation support**: rotate the tool and validation updates correctly (footprint swaps width/depth)
-- **Responsive drag interaction**: plane-raycast dragging with ref-based position updates to avoid React rerenders during drag
+- **Responsive drag interaction**: plane-raycast dragging with ref-based position updates
+- **Polished overlay**: modern typography, status feedback, and keyboard shortcuts
 
 ## Tech Stack
 

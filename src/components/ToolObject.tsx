@@ -28,6 +28,7 @@ export interface ToolObjectProps {
   showBounds?: boolean
   onPositionChange?: (pos: THREE.Vector3) => void
   onValidationChange?: (valid: boolean) => void
+  onDragChange?: (dragging: boolean) => void
 }
 
 export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function ToolObject(
@@ -37,6 +38,7 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
     showBounds = false,
     onPositionChange,
     onValidationChange,
+    onDragChange,
   },
   ref
 ) {
@@ -77,6 +79,7 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
     fixedY: FIXED_Y,
     onPositionChange: handlePositionChange,
     clampPosition,
+    onDragChange,
   })
 
   useImperativeHandle(ref, () => ({
@@ -126,13 +129,15 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
 
   return (
     <group>
-      <mesh
-        ref={meshRef}
-        rotation={[0, rotationY, 0]}
-        onPointerDown={handlePointerDown}
-      >
+      <mesh ref={meshRef} rotation={[0, rotationY, 0]} onPointerDown={handlePointerDown}>
         <boxGeometry args={[TOOL_SIZE.w, TOOL_SIZE.h, TOOL_SIZE.d]} />
-        <meshStandardMaterial color={color} />
+        <meshStandardMaterial
+          color={color}
+          metalness={0.3}
+          roughness={0.4}
+          emissive={isValid ? '#000000' : '#3f0a0a'}
+          emissiveIntensity={isValid ? 0 : 0.15}
+        />
       </mesh>
       {showBounds && <BoundsHelper meshRef={meshRef} />}
     </group>

@@ -12,6 +12,7 @@ export interface UseDragOnPlaneOptions {
   fixedY?: number
   onPositionChange?: (pos: THREE.Vector3) => void
   clampPosition?: ClampFn
+  onDragChange?: (dragging: boolean) => void
 }
 
 export function useDragOnPlane({
@@ -19,6 +20,7 @@ export function useDragOnPlane({
   fixedY = 20,
   onPositionChange,
   clampPosition,
+  onDragChange,
 }: UseDragOnPlaneOptions) {
   const { camera, gl } = useThree()
   const raycaster = useRef(new THREE.Raycaster())
@@ -43,10 +45,14 @@ export function useDragOnPlane({
     [camera, gl]
   )
 
+  const onDragChangeRef = useRef(onDragChange)
+  onDragChangeRef.current = onDragChange
+
   const handlePointerDown = useCallback(
     (e: { stopPropagation: () => void; pointerId: number }) => {
       e.stopPropagation()
       isDragging.current = true
+      onDragChangeRef.current?.(true)
       gl.domElement.setPointerCapture(e.pointerId)
     },
     [gl]
@@ -69,6 +75,7 @@ export function useDragOnPlane({
     const onUp = (e: PointerEvent) => {
       if (isDragging.current) {
         isDragging.current = false
+        onDragChangeRef.current?.(false)
         el.releasePointerCapture(e.pointerId)
         if (meshRef.current) {
           let pos = meshRef.current.position.clone()
