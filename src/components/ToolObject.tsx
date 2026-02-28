@@ -12,7 +12,7 @@ import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import { isWithinSafeZone, clampToSafeZone } from '../validation/validation'
 import { useDragOnPlane } from '../hooks/useDragOnPlane'
-import { getInitialPosition } from '../constants/tools'
+import { getInitialPosition, getFixedY } from '../constants/tools'
 import type { ToolPreset } from '../constants/tools'
 import { COLORS, MATERIALS } from '../constants'
 import { vec3ToObj, objToVec3 } from '../lib/vector'
@@ -60,8 +60,11 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
   const [isValid, setIsValid] = useState(true)
   const lastValidRef = useRef(true)
   const { size, geometry } = toolPreset
-  const fixedY = size.h / 2
-  const initialPos = useMemo(() => getInitialPosition(size), [size])
+  const fixedY = getFixedY(toolPreset)
+  const initialPos = useMemo(
+    () => getInitialPosition(size, getFixedY(toolPreset)),
+    [size, toolPreset]
+  )
 
   const handlePositionChange = useCallback(
     (pos: THREE.Vector3) => {

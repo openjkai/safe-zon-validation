@@ -68,6 +68,12 @@ export const TOOL_PRESETS: ToolPreset[] = [
   },
 ]
 
-export function getInitialPosition(size: FootprintSize): [number, number, number] {
-  return [WORKSPACE_WIDTH / 2, size.h / 2, WORKSPACE_DEPTH / 2]
+/** Y position for primitives (center-based) vs GLB (origin at bottom). */
+export function getFixedY(preset: ToolPreset): number {
+  return preset.glbPath ? 0 : preset.size.h / 2
+}
+
+export function getInitialPosition(size: FootprintSize, fixedY?: number): [number, number, number] {
+  const y = fixedY !== undefined ? fixedY : size.h / 2
+  return [WORKSPACE_WIDTH / 2, y, WORKSPACE_DEPTH / 2]
 }

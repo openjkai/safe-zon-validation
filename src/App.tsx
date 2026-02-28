@@ -11,6 +11,7 @@ import {
   SAFE_ZONE_MARGIN,
   TOOL_PRESETS,
   getInitialPosition,
+  getFixedY,
 } from './constants'
 import type { ToolPreset } from './constants/tools'
 import { CAMERA_POSITION, CAMERA_FOV } from './constants/scene'
@@ -25,7 +26,8 @@ function App() {
   const [toolPreset, setToolPreset] = useState<ToolPreset>(TOOL_PRESETS[0])
   const [rotationY, setRotationY] = useState(0)
   const [position, setPosition] = useState<THREE.Vector3>(() => {
-    const ip = getInitialPosition(TOOL_PRESETS[0].size)
+    const p = TOOL_PRESETS[0]
+    const ip = getInitialPosition(p.size, getFixedY(p))
     return new THREE.Vector3(...ip)
   })
   const [isValid, setIsValid] = useState(true)
@@ -48,14 +50,14 @@ function App() {
 
   const handleToolPresetChange = useCallback((preset: ToolPreset) => {
     setToolPreset(preset)
-    const ip = getInitialPosition(preset.size)
+    const ip = getInitialPosition(preset.size, getFixedY(preset))
     setPosition(new THREE.Vector3(...ip))
     toolRef.current?.reset()
   }, [])
 
   const handleReset = useCallback(() => {
     setRotationY(0)
-    const ip = getInitialPosition(toolPreset.size)
+    const ip = getInitialPosition(toolPreset.size, getFixedY(toolPreset))
     setPosition(new THREE.Vector3(...ip))
     toolRef.current?.reset()
   }, [toolPreset])
