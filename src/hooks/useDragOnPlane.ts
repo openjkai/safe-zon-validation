@@ -8,7 +8,7 @@ const INTERSECTION = new THREE.Vector3()
 export type ClampFn = (pos: THREE.Vector3) => THREE.Vector3
 
 export interface UseDragOnPlaneOptions {
-  meshRef: React.RefObject<THREE.Mesh | null>
+  meshRef: React.RefObject<THREE.Object3D | null>
   fixedY?: number
   onPositionChange?: (pos: THREE.Vector3) => void
   clampPosition?: ClampFn

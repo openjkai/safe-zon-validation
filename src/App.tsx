@@ -4,11 +4,18 @@ import { Scene } from './components/Scene'
 import type { ToolObjectRef } from './components/ToolObject'
 import { Kbd, Button, SegmentedControl, StatusBadge, Compass } from './components/ui'
 import * as THREE from 'three'
-import { INITIAL_POSITION, NUDGE_STEP, QUARTER_TURN, TAU, SAFE_ZONE_MARGIN } from './constants'
+import {
+  NUDGE_STEP,
+  QUARTER_TURN,
+  TAU,
+  SAFE_ZONE_MARGIN,
+  TOOL_PRESETS,
+  getInitialPosition,
+  getFixedY,
+} from './constants'
+import type { ToolPreset } from './constants/tools'
 import { CAMERA_POSITION, CAMERA_FOV } from './constants/scene'
 import { isTypingTarget } from './utils/keyboard'
-
-const INITIAL_POS = new THREE.Vector3(...INITIAL_POSITION)
 
 const VALIDATION_MODE_OPTIONS: { value: boolean; label: string }[] = [
   { value: false, label: 'Reject' },
@@ -16,8 +23,13 @@ const VALIDATION_MODE_OPTIONS: { value: boolean; label: string }[] = [
 ]
 
 function App() {
+  const [toolPreset, setToolPreset] = useState<ToolPreset>(TOOL_PRESETS[0])
   const [rotationY, setRotationY] = useState(0)
-  const [position, setPosition] = useState<THREE.Vector3>(INITIAL_POS.clone())
+  const [position, setPosition] = useState<THREE.Vector3>(() => {
+    const p = TOOL_PRESETS[0]
+    const ip = getInitialPosition(p.size, getFixedY(p))
+    return new THREE.Vector3(...ip)
+  })
   const [isValid, setIsValid] = useState(true)
   const [clampMode, setClampMode] = useState(false)
   const [showBounds, setShowBounds] = useState(true)
@@ -36,11 +48,19 @@ function App() {
 
   const handleValidationChange = useCallback((valid: boolean) => setIsValid(valid), [])
 
-  const handleReset = useCallback(() => {
-    setRotationY(0)
-    setPosition(INITIAL_POS.clone())
+  const handleToolPresetChange = useCallback((preset: ToolPreset) => {
+    setToolPreset(preset)
+    const ip = getInitialPosition(preset.size, getFixedY(preset))
+    setPosition(new THREE.Vector3(...ip))
     toolRef.current?.reset()
   }, [])
+
+  const handleReset = useCallback(() => {
+    setRotationY(0)
+    const ip = getInitialPosition(toolPreset.size, getFixedY(toolPreset))
+    setPosition(new THREE.Vector3(...ip))
+    toolRef.current?.reset()
+  }, [toolPreset])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -80,6 +100,7 @@ function App() {
         >
           <Scene
             ref={toolRef}
+            toolPreset={toolPreset}
             rotationY={rotationY}
             clampMode={clampMode}
             showBounds={showBounds || !isValid}
@@ -139,6 +160,10 @@ function App() {
               <Kbd>←</Kbd>
               <Kbd>→</Kbd> to <strong>nudge</strong> the tool
             </li>
+            <li className="mb-1.5 last:mb-0">
+              <strong>Switch</strong> sample tools from the dropdown to test different shapes and
+              sizes
+            </li>
           </ol>
         </div>
 
@@ -179,6 +204,27 @@ function App() {
           </div>
         </div>
         <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="tool-preset" className="text-xs text-muted-foreground font-medium">
+              Sample tool
+            </label>
+            <select
+              id="tool-preset"
+              value={toolPreset.id}
+              onChange={(e) => {
+                const preset = TOOL_PRESETS.find((p) => p.id === e.target.value)
+                if (preset) handleToolPresetChange(preset)
+              }}
+              className="w-full px-3 py-2 text-xs font-medium rounded-lg bg-muted border border-border text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+              aria-label="Select sample tool model"
+            >
+              {TOOL_PRESETS.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label} ({p.size.w}×{p.size.d}×{p.size.h}mm)
+                </option>
+              ))}
+            </select>
+          </div>
           <SegmentedControl
             options={VALIDATION_MODE_OPTIONS}
             value={clampMode}

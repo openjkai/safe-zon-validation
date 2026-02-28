@@ -3,6 +3,7 @@ import { OrbitControls } from '@react-three/drei'
 import { BasePlane } from './BasePlane'
 import { ToolObject, type ToolObjectRef } from './ToolObject'
 import { CameraAngleReporter } from './CameraAngleReporter'
+import type { ToolPreset } from '../constants/tools'
 import * as THREE from 'three'
 import {
   AMBIENT_LIGHT_INTENSITY,
@@ -24,6 +25,7 @@ import {
 } from '../constants/scene'
 
 export interface SceneProps {
+  toolPreset: ToolPreset
   rotationY: number
   clampMode?: boolean
   showBounds?: boolean
@@ -36,6 +38,7 @@ export interface SceneProps {
 
 export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
   {
+    toolPreset,
     rotationY,
     clampMode = false,
     showBounds = false,
@@ -77,6 +80,7 @@ export const Scene = forwardRef<ToolObjectRef, SceneProps>(function Scene(
       <BasePlane />
       <ToolObject
         ref={ref}
+        toolPreset={toolPreset}
         rotationY={rotationY}
         clampMode={clampMode}
         showBounds={showBounds}

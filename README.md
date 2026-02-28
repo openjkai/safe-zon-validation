@@ -9,7 +9,8 @@ This demo shows how to validate that a 3D tool stays within a safe margin of a w
 ## Features
 
 - **1200×600 mm workspace** with grid and 10 mm safe zone
-- **Draggable tool** (120×60×40 mm box) with footprint-based validation
+- **Draggable tool** with footprint-based validation
+- **Sample tools**: Box (default, small, large), Cylinder, and GLB-loaded variants
 - **Validation modes**: Reject (manual fix) or Clamp (auto-correct)
 - **90° rotation** (R key) with correct footprint updates
 - **Arrow keys** (↑↓←→) to nudge the tool
@@ -50,15 +51,17 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | `npm run lint`         | Run ESLint                                        |
 | `npm run lint:fix`     | Run ESLint with auto-fix                          |
 | `npm run release`      | Bump version and update changelog (see below)     |
+| `npm run generate:glb` | Generate sample GLB files in `public/models/`     |
 
 ## Demo Flow (for Screen Recording)
 
 1. **Start valid** — Object is green, inside the green safe zone
 2. **Drag toward edge** — Tool turns red, bounds wireframe shows
 3. **Rotate (R)** — Footprint updates; validation may flip valid ↔ invalid
-4. **Switch to Clamp mode** — Toggle from Reject to Clamp
-5. **Drag again** — Position auto-corrects to nearest valid spot
-6. **Reset** — Click Reset to return to center and repeat
+4. **Switch sample tools** — Use the dropdown to try different shapes (box, cylinder) and GLB models
+5. **Switch to Clamp mode** — Toggle from Reject to Clamp
+6. **Drag again** — Position auto-corrects to nearest valid spot
+7. **Reset** — Click Reset to return to center and repeat
 
 ## Development Setup
 
@@ -77,14 +80,15 @@ This project includes workspace settings for format-on-save and ESLint:
 - **Single tool**: No collision between multiple tools
 - **Axis-aligned footprint**: Validation uses AABB projected onto the base plane
 
-## Next Step: GLB-Based Bounds
+## Sample GLB Models
 
-The current object is a **placeholder box**. The validation logic is separated from the mesh representation. To use real tool GLBs:
+The demo includes sample GLB models (box, cylinder) in `public/models/`. Regenerate them with:
 
-1. Load the GLB with `useGLTF` (from Drei)
-2. Replace the box with `<primitive object={gltf.scene} />`
-3. Derive bounds with `new THREE.Box3().setFromObject(mesh)`
-4. Feed those extents into `isWithinSafeZone` (or add a Box3 variant)
+```bash
+npm run generate:glb
+```
+
+You can add your own GLB files to `public/models/` and wire them in `src/constants/tools.ts` by adding a preset with `glbPath: '/models/your-model.glb'` and the matching `size`.
 
 ## Project Structure
 
