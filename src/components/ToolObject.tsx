@@ -9,9 +9,11 @@ import {
 } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
+import { useGLTF } from '@react-three/drei'
 import { isWithinSafeZone, clampToSafeZone } from '../validation/validation'
 import { useDragOnPlane } from '../hooks/useDragOnPlane'
-import { TOOL_SIZE, TOOL_FIXED_Y, INITIAL_POSITION } from '../constants'
+import { getInitialPosition } from '../constants/tools'
+import type { ToolPreset } from '../constants/tools'
 import { COLORS, MATERIALS } from '../constants'
 import { vec3ToObj, objToVec3 } from '../lib/vector'
 
@@ -22,6 +24,7 @@ export interface ToolObjectRef {
 }
 
 export interface ToolObjectProps {
+  toolPreset: ToolPreset
   rotationY: number
   clampMode?: boolean
   showBounds?: boolean
@@ -43,6 +46,7 @@ function notifyValidationIfChanged(
 
 export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function ToolObject(
   {
+    toolPreset,
     rotationY,
     clampMode = false,
     showBounds = false,
@@ -52,31 +56,34 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
   },
   ref
 ) {
-  const meshRef = useRef<THREE.Mesh>(null)
+  const groupRef = useRef<THREE.Group>(null)
   const [isValid, setIsValid] = useState(true)
   const lastValidRef = useRef(true)
+  const { size, geometry } = toolPreset
+  const fixedY = size.h / 2
+  const initialPos = useMemo(() => getInitialPosition(size), [size])
 
   const handlePositionChange = useCallback(
     (pos: THREE.Vector3) => {
       onPositionChange?.(pos)
-      const valid = isWithinSafeZone(vec3ToObj(pos), TOOL_SIZE, rotationY)
+      const valid = isWithinSafeZone(vec3ToObj(pos), size, rotationY)
       setIsValid(valid)
       notifyValidationIfChanged(valid, lastValidRef, onValidationChange)
     },
-    [rotationY, onPositionChange, onValidationChange]
+    [size, rotationY, onPositionChange, onValidationChange]
   )
 
   const clampPosition = useMemo(
     () =>
       clampMode
-        ? (pos: THREE.Vector3) => objToVec3(clampToSafeZone(vec3ToObj(pos), TOOL_SIZE, rotationY))
+        ? (pos: THREE.Vector3) => objToVec3(clampToSafeZone(vec3ToObj(pos), size, rotationY))
         : undefined,
-    [clampMode, rotationY]
+    [clampMode, rotationY, size]
   )
 
   const { handlePointerDown } = useDragOnPlane({
-    meshRef,
-    fixedY: TOOL_FIXED_Y,
+    meshRef: groupRef,
+    fixedY,
     onPositionChange: handlePositionChange,
     clampPosition,
     onDragChange,
@@ -86,42 +93,42 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
     ref,
     () => ({
       nudge(dx: number, dz: number) {
-        if (!meshRef.current) return
-        const tentative = meshRef.current.position.clone()
+        if (!groupRef.current) return
+        const tentative = groupRef.current.position.clone()
         tentative.x += dx
         tentative.z += dz
         const final = clampPosition ? clampPosition(tentative) : tentative
-        meshRef.current.position.copy(final)
-        handlePositionChange(meshRef.current.position.clone())
+        groupRef.current.position.copy(final)
+        handlePositionChange(groupRef.current.position.clone())
       },
       getPosition() {
-        return meshRef.current?.position.clone() ?? new THREE.Vector3(...INITIAL_POSITION)
+        return groupRef.current?.position.clone() ?? new THREE.Vector3(...initialPos)
       },
       reset() {
-        if (!meshRef.current) return
-        meshRef.current.position.set(...INITIAL_POSITION)
-        handlePositionChange(meshRef.current.position.clone())
+        if (!groupRef.current) return
+        groupRef.current.position.set(...initialPos)
+        handlePositionChange(groupRef.current.position.clone())
       },
     }),
-    [handlePositionChange, clampPosition]
+    [handlePositionChange, clampPosition, initialPos]
   )
 
   useLayoutEffect(() => {
-    if (meshRef.current) {
-      meshRef.current.position.set(...INITIAL_POSITION)
-      meshRef.current.rotation.y = rotationY
+    if (groupRef.current) {
+      groupRef.current.position.set(...initialPos)
+      groupRef.current.rotation.y = rotationY
+      onPositionChange?.(new THREE.Vector3(...initialPos))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
-  }, [])
+  }, [toolPreset.id, initialPos, rotationY, onPositionChange])
 
   useLayoutEffect(() => {
-    if (meshRef.current) meshRef.current.rotation.y = rotationY
+    if (groupRef.current) groupRef.current.rotation.y = rotationY
   }, [rotationY])
 
   useFrame(() => {
-    if (!meshRef.current) return
-    const pos = meshRef.current.position
-    const valid = isWithinSafeZone(vec3ToObj(pos), TOOL_SIZE, rotationY)
+    if (!groupRef.current) return
+    const pos = groupRef.current.position
+    const valid = isWithinSafeZone(vec3ToObj(pos), size, rotationY)
     if (notifyValidationIfChanged(valid, lastValidRef, onValidationChange)) {
       setIsValid(valid)
       onPositionChange?.(pos.clone())
@@ -132,39 +139,117 @@ export const ToolObject = forwardRef<ToolObjectRef, ToolObjectProps>(function To
   const emissive = isValid ? '#000000' : COLORS.TOOL_EMISSIVE_INVALID
   const emissiveIntensity = isValid ? 0 : MATERIALS.TOOL.emissiveIntensityInvalid
 
-  return (
-    <group>
-      <mesh ref={meshRef} rotation={[0, rotationY, 0]} castShadow onPointerDown={handlePointerDown}>
-        <boxGeometry args={[TOOL_SIZE.w, TOOL_SIZE.h, TOOL_SIZE.d]} />
-        <meshStandardMaterial
-          color={color}
-          metalness={MATERIALS.TOOL.metalness}
-          roughness={MATERIALS.TOOL.roughness}
-          emissive={emissive}
-          emissiveIntensity={emissiveIntensity}
+  const materialProps = {
+    color,
+    metalness: MATERIALS.TOOL.metalness,
+    roughness: MATERIALS.TOOL.roughness,
+    emissive,
+    emissiveIntensity,
+  }
+
+  const renderGeometry = () => {
+    if (toolPreset.glbPath) {
+      return (
+        <ToolGLB
+          glbPath={toolPreset.glbPath}
+          materialProps={materialProps}
+          onPointerDown={handlePointerDown}
         />
+      )
+    }
+    if (geometry === 'cylinder') {
+      const radius = size.w / 2
+      return (
+        <mesh castShadow onPointerDown={handlePointerDown} position={[0, 0, 0]}>
+          <cylinderGeometry args={[radius, radius, size.h, 24]} />
+          <meshStandardMaterial {...materialProps} />
+        </mesh>
+      )
+    }
+    return (
+      <mesh castShadow onPointerDown={handlePointerDown} position={[0, 0, 0]}>
+        <boxGeometry args={[size.w, size.h, size.d]} />
+        <meshStandardMaterial {...materialProps} />
       </mesh>
-      {showBounds && <BoundsHelper meshRef={meshRef} />}
+    )
+  }
+
+  return (
+    <group ref={groupRef}>
+      {renderGeometry()}
+      {showBounds && <BoundsHelper objectRef={groupRef} />}
     </group>
   )
 })
 
-function BoundsHelper({ meshRef }: { meshRef: React.RefObject<THREE.Mesh | null> }) {
+function ToolGLB({
+  glbPath,
+  materialProps,
+  onPointerDown,
+}: {
+  glbPath: string
+  materialProps: {
+    color: string
+    metalness: number
+    roughness: number
+    emissive: string
+    emissiveIntensity: number
+  }
+  onPointerDown: (e: { stopPropagation: () => void; pointerId: number }) => void
+}) {
+  const { scene } = useGLTF(glbPath)
+  const clone = useMemo(() => scene.clone(), [scene])
+  const material = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: materialProps.color,
+        metalness: materialProps.metalness,
+        roughness: materialProps.roughness,
+        emissive: materialProps.emissive,
+        emissiveIntensity: materialProps.emissiveIntensity,
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- create once
+    []
+  )
+
+  useLayoutEffect(() => {
+    clone.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.material = material
+        child.castShadow = true
+      }
+    })
+  }, [clone, material])
+
+  useFrame(() => {
+    material.color.set(materialProps.color)
+    material.emissive.set(materialProps.emissive)
+    material.emissiveIntensity = materialProps.emissiveIntensity
+  })
+
+  return (
+    <group onPointerDown={onPointerDown}>
+      <primitive object={clone} />
+    </group>
+  )
+}
+
+function BoundsHelper({ objectRef }: { objectRef: React.RefObject<THREE.Object3D | null> }) {
   const [helper, setHelper] = useState<THREE.BoxHelper | null>(null)
 
   useLayoutEffect(() => {
-    const mesh = meshRef.current
-    if (!mesh) return
-    const h = new THREE.BoxHelper(mesh, COLORS.BOUNDS_HELPER)
+    const obj = objectRef.current
+    if (!obj) return
+    const h = new THREE.BoxHelper(obj, COLORS.BOUNDS_HELPER)
     setHelper(h)
     return () => {
       h.dispose()
       setHelper(null)
     }
-  }, [meshRef])
+  }, [objectRef])
 
   useFrame(() => {
-    if (helper && meshRef.current) helper.setFromObject(meshRef.current)
+    if (helper && objectRef.current) helper.setFromObject(objectRef.current)
   })
 
   if (!helper) return null
